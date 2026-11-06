@@ -1,0 +1,59 @@
+# Installs the formula from this checkout, runs its test, audits it and runs the command, on macOS
+# and Linux. The checkout is linked into Homebrew's taps as jagritvats/crossroom, so what is tested is
+# the formula in this commit, not the one already published.
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
+  HOMEBREW_NO_ANALYTICS: 1
+
+jobs:
+  formula:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # Homebrew is installed on both images; on Linux it is not on the PATH.
+      - name: Put Homebrew on the PATH
+        run: |
+          if ! command -v brew >/dev/null 2>&1; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+            echo "$(brew --prefix)/sbin" >> "$GITHUB_PATH"
+          fi
+          brew --version
+
+      - name: Use this checkout as the tap
+        run: |
+          taps="$(brew --repository)/Library/Taps/jagritvats"
+          mkdir -p "$taps"
+          rm -rf "$taps/homebrew-crossroom"
+          ln -s "$GITHUB_WORKSPACE" "$taps/homebrew-crossroom"
+          brew tap
+
+      - name: Install
+        run: brew install --formula jagritvats/crossroom/crossroom
+
+      - name: Test
+        run: brew test jagritvats/crossroom/crossroom
+
+      - name: Audit
+        run: brew audit --strict --formula jagritvats/crossroom/crossroom
+
+      - name: Run the command
+        run: |
+          crossroom --version
+          crossroom help > /dev/null
