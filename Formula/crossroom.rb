@@ -1,8 +1,8 @@
 class Crossroom < Formula
   desc "Put your AI agents in one room. Crossroom keeps the recap"
   homepage "https://crossroom.dev"
-  url "https://registry.npmjs.org/crossroom/-/crossroom-0.2.0.tgz"
-  sha256 "df7b0f59070542261749d9b385073e6ff02cc688c3fcbf9eefe8eefad596934f"
+  url "https://registry.npmjs.org/crossroom/-/crossroom-0.3.0.tgz"
+  sha256 "1fb1108a48e70174a1ebf54388e5c2ddb40c9bd99652d504e53aad1935c3fd71"
   license "Apache-2.0"
 
   depends_on "node"
